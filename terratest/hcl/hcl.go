@@ -18,8 +18,7 @@ func GenAwsVar(
 	awsAmi,
 	subnetId,
 	securityGroupId,
-	pemKeyName,
-	route53Fqdn string) {
+	pemKeyName string) {
 
 	f := hclwrite.NewEmptyFile()
 
@@ -42,7 +41,6 @@ func GenAwsVar(
 	rootBody.SetAttributeValue("aws_subnet_id", cty.StringVal(subnetId))
 	rootBody.SetAttributeValue("aws_security_group_id", cty.StringVal(securityGroupId))
 	rootBody.SetAttributeValue("aws_pem_key_name", cty.StringVal(pemKeyName))
-	rootBody.SetAttributeValue("aws_route53_fqdn", cty.StringVal(route53Fqdn))
 
 	_, err = tfVarsFile.Write(f.Bytes())
 	if err != nil {

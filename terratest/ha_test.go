@@ -38,7 +38,6 @@ func TestHaSetup(t *testing.T) {
 		viper.GetString("tf_vars.aws_subnet_id"),
 		viper.GetString("tf_vars.aws_security_group_id"),
 		viper.GetString("tf_vars.aws_pem_key_name"),
-		viper.GetString("tf_vars.aws_route53_fqdn"),
 	)
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{

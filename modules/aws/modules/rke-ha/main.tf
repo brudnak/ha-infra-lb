@@ -94,3 +94,15 @@ resource "aws_lb_listener" "aws_lb_listener_80" {
     target_group_arn = aws_lb_target_group.aws_lb_target_group_80.arn
   }
 }
+
+  # add a listener for port 443
+  resource "aws_lb_listener" "aws_lb_listener_443" {
+    load_balancer_arn = aws_lb.aws_lb.arn
+    port              = "443"
+    protocol          = "HTTPS"
+
+    default_action {
+      type             = "forward"
+      target_group_arn = aws_lb_target_group.aws_lb_target_group_443.arn
+    }
+}

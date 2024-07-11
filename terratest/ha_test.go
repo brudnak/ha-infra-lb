@@ -311,7 +311,7 @@ func CreateCertManagerInstallScript(ha1Or2 int) {
 	installScript = `#!/bin/sh
 export KUBECONFIG=kube_config_cluster.yml
 
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.2/cert-manager.crds.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.crds.yaml
 
 # Add the Jetstack Helm repository
 helm repo add jetstack https://charts.jetstack.io
@@ -322,7 +322,8 @@ helm repo update
 # Install the cert-manager Helm chart
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --create-namespace
+  --create-namespace \
+  --version v1.15.0
 `
 
 	f := []byte(installScript)

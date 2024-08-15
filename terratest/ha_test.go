@@ -115,10 +115,12 @@ func TestHaSetup(t *testing.T) {
 
 	CreateInstallScript(bootstrapPassword, viper.GetString("ha-1.image"), viper.GetString("ha-1.chart"), 1)
 	CreateCertManagerInstallScript(1)
+	CreateCACertScript(1)
 	CreateLBFile(infra1LB, 1)
 
 	CreateInstallScript(bootstrapPassword, viper.GetString("ha-2.image"), viper.GetString("ha-2.chart"), 2)
 	CreateCertManagerInstallScript(2)
+	CreateCACertScript(2)
 	CreateLBFile(infra2LB, 2)
 
 	log.Printf("HA 1 LB: %s", infra1LB)
@@ -263,7 +265,9 @@ helm install rancher rancher-latest/rancher \
   --set letsEncrypt.ingress.class=nginx \
   --set bootstrapPassword=` + bsPassword + ` \
   --set rancherImageTag=` + image + ` \
-  --version ` + chart + `
+  --version ` + chart + ` \
+  --set agentTLSMode=system-store \
+  --set privateCA=true
 `
 	} else {
 		installScript = `#!/bin/sh
@@ -283,7 +287,9 @@ helm install rancher rancher-latest/rancher \
   --set bootstrapPassword=` + bsPassword + ` \
   --set rancherImageTag=` + image + ` \
   --version ` + chart + ` \
-  --set global.cattle.psp.enabled=false
+  --set global.cattle.psp.enabled=false \
+  --set agentTLSMode=system-store \
+  --set privateCA=true
 `
 	}
 
@@ -292,6 +298,36 @@ helm install rancher rancher-latest/rancher \
 
 	if err != nil {
 		log.Println("failed creating install script:", err)
+	}
+}
+
+func CreateCACertScript(ha1Or2 int) {
+
+	var path string
+	var installScript string
+
+	if ha1Or2 == 1 {
+		path = "./high-availability-1/cacert.sh"
+	}
+
+	if ha1Or2 == 2 {
+		path = "./high-availability-2/ccacert.sh"
+	}
+
+	installScript = `#!/bin/sh
+export KUBECONFIG=kube_config_cluster.yml
+
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.crds.yaml
+
+kubectl -n cattle-system create secret generic tls-ca \
+  --from-file=cacerts.pem=./cacerts.pem
+`
+
+	f := []byte(installScript)
+	err := os.WriteFile(path, f, 0644)
+
+	if err != nil {
+		log.Println("failed creating cert manager install script:", err)
 	}
 }
 

@@ -1,6 +1,6 @@
-# Go / Terratest / Terraform to Create Two Rancher HA Setups
+# Go / Terratest / Terraform to Create Dynamic Number of Rancher HA Setups
 
-This setup creates two HA without Route 53, so you can use your own TLD.
+This setup creates a dynamic amount of HA setups without Route 53, so you can use your own TLD.
 
 # Webhook Hardening Alert
 
@@ -10,14 +10,17 @@ If wanting to harden the webhook, please see the bottom of this README.md BEFORE
 
 For Rancher QA to easily create HA Rancher setups in AWS with RKE1 as the base. 
 
-This will create two folders next to `ha_test.go`
+This will create however many folders you specify next to `ha_test.go`
 
 - high-availability-1
 - high-availability-2
+- high-availability-3
+- etc,
+- etc..
 
 These folders will contain a cluster.yml pre-configured to run `rke up` against with whatever rke version you want.
 
-And also a preconfigured installation script that you can run `bash install.sh` against.
+And also a pre-configured installation script that you can run `zsh install.sh` against.
 
 ## How to use it?
 
@@ -29,27 +32,23 @@ How the `tool-config.yml` file should look like:
 local:
   pem_path: "your-local-path-to-the-pem-file-you-use-for-aws"
 rancher:
-  bootstrap_password: whatever-bootstrap-password-you-want
-ha-1:
-  image: v2.7.1
-  chart: 2.7.1
-  global_cattle_psp_enabled: true
-ha-2:
-  image: v2.7.2-rc3
-  chart: 2.7.2-rc3
-  global_cattle_psp_enabled: false
+  bootstrap_password: "whatever-bootstrap-password-you-want"
+total_has: 4  # Number of HA instances to create
+ha_config:  # Single template config for all HA instances
+  image: "v2.9.2"
+  chart: "2.9.2"
 tf_vars:
-  aws_access_key: your-aws-access-key
-  aws_secret_key: your-aws-secret-key
-  aws_prefix: aws-prefix-should-only-be-3-characters-like-your-initials
-  aws_vpc: aws-vpc-you-want-to-use
-  aws_subnet_a: your-subnet-a
-  aws_subnet_b: your-subnet-b
-  aws_subnet_c: your-subnet-c
-  aws_ami: whatever-ami-you-want-one-with-docker
-  aws_subnet_id: -your-subnet-id
-  aws_security_group_id: whatever-security-group-you-want
-  aws_pem_key_name: your-aws-pem-key-name-in-aws-no-file-extension
+  aws_access_key: "your-aws-access-key"
+  aws_secret_key: "your-aws-secret-key"
+  aws_prefix: "aws-prefix-should-only-be-3-characters-like-your-initials"
+  aws_vpc: "aws-vpc-you-want-to-use"
+  aws_subnet_a: "your-subnet-a"
+  aws_subnet_b: "your-subnet-b"
+  aws_subnet_c: "your-subnet-c"
+  aws_ami: "whatever-ami-you-want-one-with-docker"
+  aws_subnet_id: "your-subnet-id"
+  aws_security_group_id: "whatever-security-group-you-want"
+  aws_pem_key_name: "your-aws-pem-key-name-in-aws-no-file-extension"
 ```
 
 Then you just need to run this function in `ha_test.go` >>> `TestHaSetup`
